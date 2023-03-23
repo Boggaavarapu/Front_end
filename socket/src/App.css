@@ -1,0 +1,193 @@
+.App {
+  text-align: center;
+  
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+.btn btn-primary{
+  margin-left: 10px;
+}
+.avatar{
+  font-style:oblique;
+  display: block;
+  margin-left: 5px;
+  text-align-last: left;
+}
+.message-data{
+  margin-left: 23px;
+  font-style:oblique;
+  display: block;
+}
+#abcd{
+  margin-left: 30%;
+  margin-top: 70%;
+}
+
+.send-button{
+  border-radius: 12px;
+  margin-left: 10px;
+}
+.box{
+  display: flex;
+  justify-content: center;
+  margin-top: 0px;
+  border-radius: 12px;
+  flex-direction: row;
+}
+.col-md-6 offset md-3 border rounded p-4 mt-2 shadow{
+  margin-top: 20%;
+}
+.inside{
+  display: flex;
+  margin-left: 20%;
+  
+}
+.onlinepersons{
+  margin-left: 10px;
+  margin-right: 5px;
+}
+.box{
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  margin-left: 5%;
+}
+#buttons{
+  margin-top: 15px;
+}
+.active{
+  display: flex;
+  flex-direction: row;
+}
+.ins1{
+  display: flex;
+  flex-direction: row;
+}
+.ins2{
+  display: flex;
+  flex-direction: column;
+}
+.chat-content{
+ 
+  text-emphasis-color: white;
+  display: flex;
+  flex-direction: column;
+  margin-top: 15px;
+  border:24px ;
+}
+#buttons{
+  margin-left: 10px;
+  width: 150px;
+  margin-right: 10px;
+  border-radius: 10px;
+  border: 0px;
+}
+.container{
+  margin-top: 15%;
+}
+.imagesize{
+  height: 25px;
+  width: 25px;
+}
+
+.send-button{
+  margin-left: 10px;
+}
+#buttonid{
+  margin-left: 10px;
+}
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+.chat-message{
+
+  border: 1px;
+}
+.onlinestatus{
+  display: flex;
+  flex-direction: row;
+}
+.onlinestatus1{
+  margin-left: 5px;
+  background-color: #eff4fd;
+  text-emphasis-color: rgb(93, 82, 207);
+}
+.container1{
+  display: flex;
+  height: 743px;
+  flex-direction: column;
+  background-color: #32358a;
+}
+.abc{
+  height: 800px;
+  display: flex;
+  flex-direction: row;
+  background-color: #3b2498;
+  margin-bottom: 10px;
+}
+p{
+  margin-top:15px;
+  font-style: italic;
+}
+.whole{
+  height: 100%;
+  margin-top: 10px;
+  overflow: auto;
+}
+.buttons{
+  border: 0%;
+  border-radius: 0%;
+}
+.left{
+  width:20%;
+  height: 100%;
+  background-color: azure;
+  margin-top: 20px;
+  margin-left: 20px;
+}
+.row{
+  margin-top: 30%;
+}
+.chat-box{
+  background-color: white;
+  width: 76%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  margin-left: 20px;
+}
+#togglePassword{
+  height: 34px;
+  width: 24px;
+}
+.App-link {
+  color: #61dafb;
+}
+input{
+  width: 500px;
+  font-style: italic;
+}
+.send-message{
+  margin-top: 20px;
+  margin-bottom: 5px;
+}
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
