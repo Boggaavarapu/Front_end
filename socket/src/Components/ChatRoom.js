@@ -1,11 +1,9 @@
 import React, { useState } from 'react'
 import axios from 'axios'
-//import bcrypt from 'bcrypt';
-// import crypto from "crypto"
-// import polyfills from "polyfills"
 import { sha512 } from 'js-sha512';
 let newSocket=null;
-export default function ChatRoom() {
+let  onmessage=false
+export default function Whatsup() {
     const [userdetails,setusedetails]=useState({
         username:"",
         password:"",
@@ -13,6 +11,10 @@ export default function ChatRoom() {
     })
     const [onlinelist,setonlinelist]=useState([])
     const [namedata,setnamedata]=useState("")
+    const[otp,setotp]=useState({
+        boola:false,
+        opt_type:""
+    })
     const [publicChats, setPublicChats] = useState([]);
     const[check ,setcheck]=useState({
         check1:false,
@@ -26,54 +28,94 @@ export default function ChatRoom() {
         username: "",
         message: ''
       });
-    const signup=async()=>{
-        console.log(userdetails)
-        console.log(sha512.hmac('1',userdetails.password ))
-        const result=await axios.post(`http://localhost:8081/web/post1/${userdetails.username}/${sha512.hmac('1',userdetails.password )}/${userdetails.number}`)
-        console.log(result)
-        if (result.data==="change user name"){
-            alert('change user name')
-        }
-        else{
-            setcheck({...check,check2:false})
-        }
+    
+      function containsSpecialChars(str) {
+        const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+        return specialChars.test(str);
+      }
+    if(onmessage){
+        const data1 ={
+            usernam1: 'harsfree',
+            message1: 'hi automating testing',
+            sender1: 'karthick'
+          };
+        console.log("saying",data1)
+        publicChats.push(data1);
+        setPublicChats([...publicChats]); 
+        onmessage=false
     }
+    const signup=async()=>{
+        console.log("otp is",otp.opt_type)
+            if( containsSpecialChars(userdetails.password) ){        
+                const formData = new FormData();
+                formData.append("file1",image)
+                const result=await axios.post(`http://localhost:8081/web/postprofile/${userdetails.username}/${sha512.hmac('1',userdetails.password )}/${userdetails.number}/${otp.opt_type}`,formData,{
+                    headers:{'Content-Type':'multipart/form-data'}
+                })
+                if (result.data==="enter correct otp"){
+                    alert("enter correct otp")
+                    setotp({...otp,opt_type:""})
+                }
+                else{
+                    if (result.data==="change user name"){
+                        alert('change user name')
+                    }
+                    else{
+                        setcheck({...check,check2:false})
+                        setotp({...otp,boola:false})
+                        setusedetails({...userdetails,username:"",password:"",number:""})
+                        setotp({...otp,opt_type:""})
+                    }
+                }
+            }else{
+                setusedetails({...userdetails,password:""})
+                alert('Should contain a special symbol')
+            }
+        
+    }
+
     const autherfication=async()=>{
-        console.log(sha512.hmac('1', login.password1))
-        var result= await axios.get(`http://localhost:8081/web/put/${login.number1}/${sha512.hmac('1', login.password1)}`)
-        var result1= await axios.get(`http://localhost:8081/web/gets1/${login.number1}/${sha512.hmac('1', login.password1)}`)
-        setInterval(async()=>{
-            var result2=await axios.get(`http://localhost:8081/web/onlines`)
-            setonlinelist(result2.data)},100)
+        var result= await axios.get(`http://localhost:8081/web/putprofile/${login.number1}/${sha512.hmac('1', login.password1)}`)
+        var result1= await axios.get(`http://localhost:8081/web/getsprofiles/${login.number1}/${sha512.hmac('1', login.password1)}`)
+        var unique=await axios.get(`http://localhost:8081/web/unique/${result1.data}`) 
         setUserData({...userData,username:result1.data})
-        console.log(result.data)
         if (result.data)
         {
+            setInterval(async()=>{
+
+                var result2=await axios.get(`http://localhost:8081/web/onlinesprofile`)
+                setonlinelist(result2.data)
+                } ,100)
             setcheck({...check,check1:true})
             const newSocket1 = new WebSocket('ws://localhost:8081/chat');
             newSocket1.onopen = (event) => 
             {
-                console.log("connected")
-                newSocket1.send(JSON.stringify({usernam1:result1.data,message:"identity",sender1:"server"}))
+                newSocket1.send(JSON.stringify({usernam1:result1.data,message:"identity",uniquecode:unique.data,sender1:"server"}))
             };
-            
             newSocket=newSocket1
-            newSocket1.onmessage = (event) => 
+            onmessage=true
+            newSocket.onmessage = (event) => 
             {
                 const data1 = JSON.parse(event.data);
-                console.log(data1)
+                console.log("saying",data1)
                 publicChats.push(data1);
-                setPublicChats([...publicChats]); 
+                setPublicChats([...publicChats]);
             };
         }
         else{
             alert('incorrect credentials')
         }
-            newSocket.onclose=()=>{
-                console.log("closed")
-            }
+            
             
     }
+    // console.log("hello",newSocket)
+    // newSocket.onmessage = (event) => 
+    //         {
+    //             const data1 = JSON.parse(event.data);
+    //             console.log(data1)
+    //             publicChats.push(data1);
+    //             setPublicChats([...publicChats]); 
+    //         };
     const logoutfunction=async()=>{
         newSocket.close();
         setcheck({...check,check1:false})
@@ -87,6 +129,10 @@ export default function ChatRoom() {
         setcheck({...check,check2:true})
     }
     const [sendervalue,setsendervalue]=useState(0)
+    const otpgenerate=async()=>{
+        setotp({...otp,boola:true})
+        await axios.post(`http://localhost:8081/web/otp/${userdetails.number}`)
+    }
     const handlemessage=()=>{
         const json1={
             usernam1:userData.username,
@@ -96,9 +142,16 @@ export default function ChatRoom() {
         }
         setUserData({...userData,message:""})
         if (newSocket){
+            console.log(newSocket)
+            console.log(json1)
             newSocket.send( JSON.stringify(json1))
         }
     }   
+    const[image,setimage]=useState();
+    function handlefile(e){
+        setimage(e.target.files[0]);
+      } 
+      
   return (
     <div className='whole' >
     <div>
@@ -106,14 +159,16 @@ export default function ChatRoom() {
         <div className='container1'>
             <div className='abc'>
             <div className='left'>
-                <p>{namedata}</p>
+                <p data-testid='personname'>{namedata}</p>
                  {onlinelist.map((chat1,index)=>(
                     <div>
                         {chat1.username===userData.username?<div>
-                            <button id="buttons" className='onlineperson'onClick={()=>{setsendervalue(index)
+                            <img className="imagesize" src="https://png.pngtree.com/png-vector/20191009/ourmid/pngtree-group-icon-png-image_1796653.jpg" alt='outpt'/>
+                            <button data-testid={`testid-${index}`} id="buttons" className='onlineperson'onClick={()=>{setsendervalue(index)
                         setnamedata("Group")}}>Group</button>
                         </div>:<div>
-                        <button className='onlineperson' id="buttons" onClick={()=>{setsendervalue(index)
+                        <img className="imagesize"src={`data:image/png;base64,${chat1.image}`} alt="Output"/>
+                        <button data-testid={`testid-${index}`} className='onlineperson' id="buttons" onClick={()=>{setsendervalue(index)
                         setnamedata(chat1.username)}}>{chat1.username}</button>
                         </div>}
                     </div>
@@ -121,13 +176,13 @@ export default function ChatRoom() {
             </div>
             <div className="chat-box">
                 <div className="inside">
-                    <h2>Chatroom  {userData.username} </h2>
-                    <button className="send-button" onClick={logoutfunction}>Logout</button>
+                    <h3 data-testid="paragraph">Chatroom {userData.username}</h3>
+                    <button data-testid="logout" className="send-button" onClick={logoutfunction}>Logout</button>
                 </div>
                 <div>
                     
                     {namedata===""?<div></div>:
-                        <div className='onlinestatus'><div className='onlinestatus1'>{namedata}</div><br></br>
+                        <div data-testid="clickperson"className='onlinestatus'><div className='onlinestatus1'>{namedata}</div><br></br>
                         {onlinelist[sendervalue].login?<div><small>*</small></div>:<div></div>}
                         </div>
                     }
@@ -139,16 +194,16 @@ export default function ChatRoom() {
                                 {namedata!==""?
                                     <div>
                                         {chat.sender1==="Group" && namedata==="Group"?<div className='ins1'>
-                                            <div className="avatar" key={index}>{chat.usernam1}123<span>  </span></div>
-                                            <div className="message-data"> {chat.message1}</div>
+                                            <div className="avatar" data-testid="chatmessagesname"key={index}>{chat.usernam1}<span>  </span></div>
+                                            <div className="message-data" data-testid="chatmessages"> {chat.message1}</div>
                                         </div>:<div>
                                             {chat.sender1===namedata?<div className='ins1'>
-                                                <div className="avatar" key={index}>{chat.usernam1}123<span>  </span></div>
-                                                <div className="message-data"> {chat.message1}</div>
+                                                <div className="avatar" data-testid="chatmessagesname" key={index}>{chat.usernam1}<span>  </span></div>
+                                                <div className="message-data"data-testid="chatmessages"> {chat.message1}</div>
                                             </div>:<div>
                                                 {chat.usernam1===namedata && chat.sender1!=="Group"?<div className='ins1'>
-                                                    <div className="avatar" key={index}>{chat.usernam1}123<span>  </span></div>
-                                                    <div className="message-data"> {chat.message1}</div>
+                                                    <div className="avatar" key={index}data-testid="chatmessagesname">{chat.usernam1}<span>  </span></div>
+                                                    <div className="message-data" data-testid="chatmessages"> {chat.message1}</div>
 
                                                 </div>:<div></div>}
                                                 </div>}
@@ -163,7 +218,7 @@ export default function ChatRoom() {
             </div>
             <div className="send-message">
                 <input type="text" className="input-message" id="input" placeholder="Enter the message" value={userData.message} onChange={e=>setUserData({...userData,message:e.target.value})} /> 
-                <button type="button" className="send-button" onClick={handlemessage}>send</button>
+                <button type="button" data-testId="sendbutton" className="send-button" onClick={handlemessage}>send</button>
             </div>
         </div>:
         <div>
@@ -198,18 +253,42 @@ export default function ChatRoom() {
                                     onChange={e=>setusedetails({...userdetails,password:e.target.value})}
                                     />
                                     <label htmlFor='FolderName' className='form-label'>
-                                        number
+                                        Email
                                     </label>
                                     <input
-                                    type={"text"}
+                                    type={"email"}
                                     className="form-control"
-                                    placeholder='Enter Number'
+                                    placeholder='Enter Email'
                                     name="FolderName"
                                     value={userdetails.number}
                                     onChange={e=>setusedetails({...userdetails,number:e.target.value})}
                                     />
                                     <br></br>
-                                    <button type="submit" className='btn btn-primary' onClick={signup}>Submit</button>
+                                    <input
+                                        type={"file"}
+                                        className="form-control"
+                                        data-testid="testing"
+                                        name="NewFolderName"
+                                        onChange={handlefile}
+                                        /> 
+                                    <br></br>
+                                    {otp.boola?<div>
+                                        <label htmlFor='FolderName' className='form-label'>
+                                        Enter otp
+                                        </label>
+                                        <input
+                                        type={"text"}
+                                        className="form-control"
+                                        placeholder='Enter otp'
+                                        name="FolderName"
+                                        value={otp.opt_type}
+                                        onChange={e=>setotp({...otp,opt_type:e.target.value})}
+                                        /><br></br>
+                                        <button type="submit" className='btn btn-primary' onClick={signup}>Submit</button>
+                                    </div>:<div>
+                                    <button type="submit" className='btn btn-primary' onClick={otpgenerate}>Generate Otp</button>
+                                    </div>}
+                                    
                                     
                                 </div>
                             
@@ -225,13 +304,14 @@ export default function ChatRoom() {
                             
                                 <div className='mb-3'>
                                     <label htmlFor='FolderName' className='form-label'>
-                                        Number
+                                        Email
                                     </label>
                                     <input
-                                    type={"text"}
+                                    type={"email"}
                                     className="form-control"
                                     placeholder='Enter Number'
                                     name="FolderName"
+                                    data-testid="number"
                                     value={login.number1}
                                     onChange={e=>setlogin({...login,number1:e.target.value})}
                                     />
@@ -240,18 +320,18 @@ export default function ChatRoom() {
                                     </label>
                                     <input
                                     type={"password"}
+                                    id="id_password"
                                     className="form-control"
                                     placeholder='Enter Password'
                                     name="FolderName"
+                                    data-testid="password"
                                     value={login.password1}
                                     onChange={e=>setlogin({...login,password1:e.target.value})}
                                     />
                                     <br></br>
-                                    <button type="submit" className='btn btn-primary' onClick={autherfication}>Submit</button>
-                                    
-                                    <button type="submit" id='buttonid' className='btn btn-primary' onClick={signupdetails}>Sign up</button>
+                                    <button type="submit" data-testid="submit"placeholder='Submit' className='btn btn-primary' onClick={autherfication}>Submit</button>
+                                    <button type="submit"  data-testid="signup"id='buttonid' placeholder='Sign up' className='btn btn-primary' onClick={signupdetails}>Sign up</button>
                                 </div>
-                            
                         </div>
                     </div>
                 </div>
